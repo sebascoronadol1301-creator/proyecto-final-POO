@@ -1,0 +1,98 @@
+﻿@using System.Security.Claims
+@{
+    bool estaAutenticado = User.Identity != null && User.Identity.IsAuthenticated;
+    string nombreNav = User.FindFirstValue(ClaimTypes.Name) ?? "Usuario";
+    string rolNav = User.FindFirstValue(ClaimTypes.Role) ?? "";
+    string iniciales = string.Join("", nombreNav
+        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+        .Take(2)
+        .Select(p => char.ToUpper(p[0])));
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Portal de Acceso</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        body {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .navbar-corporativo {
+            background-color: #0f172a;
+            border-bottom: 1px solid #1e293b;
+        }
+        .avatar-iniciales {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #2563eb;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        main {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    @if (estaAutenticado)
+    {
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-dark navbar-corporativo shadow-sm py-2">
+                <div class="container">
+                    <a class="navbar-brand fw-semibold d-flex align-items-center gap-2" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-shield-lock-fill text-primary fs-4"></i>
+                        <span>PortalMVC</span>
+                    </a>
+
+                    <div class="d-flex align-items-center gap-3 ms-auto">
+                        <div class="d-flex align-items-center gap-2 text-white">
+                            <span class="avatar-iniciales">@iniciales</span>
+                            <div class="d-none d-sm-block lh-1">
+                                <div class="fw-semibold small">@nombreNav</div>
+                                <span class="text-secondary" style="font-size: 0.75rem;">@rolNav</span>
+                            </div>
+                        </div>
+
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-light btn-sm d-flex align-items-center gap-1">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span>Cerrar Sesión</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </nav>
+        </header>
+    }
+
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <footer class="py-3 text-center text-muted small border-top bg-white mt-auto">
+        <div class="container">
+            © 2026 - Sistema de Autenticación y Control de Acceso (ASP.NET Core MVC & SQL Server)
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
